@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ImperativeExample {
     public static void main(String[] args) {
-        var names = List.of("alex", "ben", "chole", "afam");
+        var names = List.of("alex", "ben", "chole", "afam", "afam");
         var newNames = namesGreaterTanSize(names, 3);
         System.out.println("new names list: "+newNames);
     }
@@ -14,8 +14,8 @@ public class ImperativeExample {
         var newList = new ArrayList<String>();
 
         for (String name : names) {
-            if (name.length() > 3) {
-                newList.add(name);
+            if (name.length() > 3 && !newList.contains(name)) {
+                newList.add(name.toUpperCase());
             }
         }
         return newList;

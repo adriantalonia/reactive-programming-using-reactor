@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok' version '6.5.0.3'
+}
+
+group 'com.reactive'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+
+    implementation 'io.projectreactor:reactor-core:3.4.22'
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+    implementation 'io.projectreactor:reactor-tools:3.4.22'
+
+    testImplementation 'io.projectreactor:reactor-test:3.4.22'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testImplementation 'org.mockito:mockito-core:4.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.7.0'
+
+}
+
+test {
+    useJUnitPlatform()
+}

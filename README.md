@@ -8,6 +8,8 @@
 ## Technology Stack
 - Java 11
 - Greadle
+- Junit5
+- Mockito
 
 
 ## Development Prerequisites

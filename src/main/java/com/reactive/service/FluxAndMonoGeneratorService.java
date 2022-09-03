@@ -5,6 +5,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Function;
 
 public class FluxAndMonoGeneratorService {
 
@@ -73,6 +74,60 @@ public class FluxAndMonoGeneratorService {
                 .flatMap(this::splitStringMono)
                 .log();
     }
+
+    public Flux<String> nameMonoFlatMapMany(int stringLength) {
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .flatMapMany(this::splitString)// return flux when use Mono
+                .log();
+    }
+
+    public Flux<String> namesFluxTransform(int stringLength) {
+        Function<Flux<String>, Flux<String>> filtermap = name -> name.map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength);
+
+        return Flux.fromIterable(List.of("alex", "ben", "chole"))
+                .transform(filtermap)
+                .flatMap(s -> splitString(s))
+                .defaultIfEmpty("default")
+                .log();
+    }
+
+    public Flux<String> namesFluxTransformSwitchEmpty(int stringLength) {
+        Function<Flux<String>, Flux<String>> filtermap = name -> name.map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .flatMap(s -> splitString(s));
+
+        var defaultFlux = Flux.just("default")
+                .transform(filtermap);
+
+        return Flux.fromIterable(List.of("alex", "ben", "chole"))
+                .transform(filtermap)
+                .switchIfEmpty(defaultFlux)
+                .log();
+    }
+
+
+    public Mono<String> nameMonoMapFilterDefaultIfEmpty(int stringLength) {
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .defaultIfEmpty("default")
+                .log();
+    }
+
+    public Mono<String> nameMonoMapFilterSwitchIfEmpty(int stringLength) {
+
+        var defaultMono = Mono.just("default");
+
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .switchIfEmpty(defaultMono)
+                .log();
+    }
+
 
     public Mono<List<String>> splitStringMono(String s) {
         var charArray = s.split("");

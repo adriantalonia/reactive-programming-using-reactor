@@ -102,7 +102,8 @@ class FluxAndMonoGeneratorServiceTest {
         StepVerifier.create(namesFlux)
                 //.expectNext("A", "L", "E", "X", "C", "H", "O", "L", "E")
                 .expectNextCount(9)
-                .verifyComplete();;
+                .verifyComplete();
+        ;
     }
 
     @Test
@@ -127,6 +128,65 @@ class FluxAndMonoGeneratorServiceTest {
         //then
         StepVerifier.create(mono)
                 .expectNext(List.of("A", "L", "E", "X"))
+                .verifyComplete();
+    }
+
+    @Test
+    void nameMonoFlatMapMany() {
+        //given
+        int stringLength = 3;
+
+        //when
+        var value = fluxAndMonoGeneratorService.nameMonoFlatMapMany(stringLength);
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A", "L", "E", "X")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFluxTransform() {
+        //given
+        int stringLength = 3;
+
+        //given
+        var names = fluxAndMonoGeneratorService.namesFluxTransform(stringLength);
+
+        //then
+        StepVerifier.create(names)
+                .expectNext("A", "L", "E", "X", "C", "H", "O", "L", "E")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFluxTransform1() {
+        //given
+        int stringLength = 6;
+
+        //given
+        var names = fluxAndMonoGeneratorService.namesFluxTransform(stringLength);
+
+        //then
+        StepVerifier.create(names)
+                //.expectNext("A", "L", "E", "X", "C", "H", "O", "L", "E")
+                .expectNext("default")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFluxTransformSwitchEmpty() {
+
+        //given
+        int stringLength = 6;
+
+        //given
+        var names = fluxAndMonoGeneratorService.namesFluxTransformSwitchEmpty(stringLength);
+
+        //then
+        StepVerifier.create(names)
+                //.expectNext("A", "L", "E", "X", "C", "H", "O", "L", "E")
+                .expectNext("D", "E", "F", "A", "U", "L", "T")
                 .verifyComplete();
     }
 }

@@ -1,5 +1,7 @@
 package com.reactive.service;
 
+import com.reactive.exception.ReactorException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -7,6 +9,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
+@Slf4j
 public class FluxAndMonoGeneratorService {
 
     public Flux<String> namesFlux() {
@@ -236,6 +239,97 @@ public class FluxAndMonoGeneratorService {
                 .concatWith(Flux.just("D"));
     }
 
+
+    public Flux<String> exploreOnErrorReturn() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new IllegalStateException("Exception occurred")))
+                .onErrorReturn("D"); // default value
+    }
+
+    public Flux<String> exploreOnErrorResume(Exception e) {
+
+        var recoverFlux = Flux.just("D", "E", "F");
+
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(e))
+                .onErrorResume(ex -> {
+                    log.error("Exception is: ", ex);
+                    if (ex instanceof IllegalStateException)
+                        return recoverFlux;
+                    return Flux.error(ex);
+                });
+    }
+
+    public Flux<String> exploreOnErrorContinue() {
+
+        return Flux.just("A", "B", "C")
+                .map(name -> {
+                    if (name.equals("B"))
+                        throw new IllegalStateException("Exception occurred");
+                    return name;
+                })
+                .concatWith(Flux.just("D"))
+                .onErrorContinue((ex, name) -> {
+                    log.error("Exception is: ", ex);
+                    log.info("name is {}", name);
+                });
+    }
+
+    public Flux<String> exploreOnErrorMap() {
+        return Flux.just("A", "B", "C")
+                .map(name -> {
+                    if (name.equals("B"))
+                        throw new IllegalStateException("Exception occurred");
+                    return name;
+                })
+                .concatWith(Flux.just("D"))
+                .onErrorMap((ex) -> {
+                    log.error("Exception is: ", ex);
+                    return new ReactorException(ex, ex.getMessage());
+                });
+    }
+
+    public Flux<String> exploreDoOnError() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new IllegalStateException("Exception occurred")))
+                .doOnError(ex -> {
+                    log.error("Exception is: ", ex);
+
+                });
+    }
+
+    public Mono<Object> exploreMonoOnErrorReturn() {
+        return Mono.just("A")
+                .map(value -> {
+                    throw new RuntimeException("Exception occurred");
+                })
+                .onErrorReturn("abc");
+    }
+
+    public Mono<Object> exception_mono_onErrorMap(Exception e) {
+        return Mono.just("B")
+                .map(value -> {
+                    throw new RuntimeException("Exception occurred");
+                })
+                .onErrorMap(ex -> {
+                    System.out.println("Exception is: " + ex);
+                    return new ReactorException(ex, ex.getMessage());
+                });
+    }
+
+    public Mono<String> exception_mono_onErrorContinue(String input) {
+
+        return Mono.just(input)
+                .map(name -> {
+                    if (name.equals("abc"))
+                        throw new RuntimeException("Exception occurred");
+                    return name;
+                })
+                .onErrorContinue((ex, name) -> {
+                    log.error("Exception is: ", ex);
+                    log.info("name is {}", name);
+                });
+    }
 
 
     public Mono<List<String>> splitStringMono(String s) {

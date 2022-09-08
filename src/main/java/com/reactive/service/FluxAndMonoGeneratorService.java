@@ -48,6 +48,18 @@ public class FluxAndMonoGeneratorService {
                 .map(String::toUpperCase)
                 .filter(s -> s.length() > stringLength)
                 .flatMap(s -> splitString(s))
+                .doOnNext(name -> {
+                    System.out.println("Name is: " + name);
+                })
+                .doOnSubscribe(s -> {
+                    System.out.println("Subscription is: " + s);
+                })
+                .doOnComplete(() -> {
+                    System.out.println("Inside the complete callback");
+                })
+                .doFinally(signalType -> {
+                    System.out.println("INside doFinally: " + signalType);
+                })
                 .log(); // could be db or remote service
     }
 
@@ -217,6 +229,13 @@ public class FluxAndMonoGeneratorService {
         return aMono.zipWith(bMono)
                 .map(t2 -> t2.getT1() + t2.getT2()).log();
     }
+
+    public Flux<String> exceptionFlux() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception occurred")))
+                .concatWith(Flux.just("D"));
+    }
+
 
 
     public Mono<List<String>> splitStringMono(String s) {

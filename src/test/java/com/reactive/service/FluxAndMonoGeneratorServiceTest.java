@@ -333,5 +333,46 @@ class FluxAndMonoGeneratorServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    void exceptionFlux() {
+        //given
+
+        //when
+        var value = fluxAndMonoGeneratorService.exceptionFlux().log();
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A", "B", "C")
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    void exceptionFlux1() {
+        //given
+
+        //when
+        var value = fluxAndMonoGeneratorService.exceptionFlux().log();
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A", "B", "C")
+                .expectError()
+                .verify();
+    }
+
+    @Test
+    void exceptionFlux2() {
+        //given
+
+        //when
+        var value = fluxAndMonoGeneratorService.exceptionFlux().log();
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A", "B", "C")
+                .expectErrorMessage("Exception occurred")
+                .verify();
+    }
 }
 

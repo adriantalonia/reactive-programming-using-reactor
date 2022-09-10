@@ -342,6 +342,7 @@ public class FluxAndMonoGeneratorService {
     public Flux<String> splitStringWIthDelay(String name) {
         var charArray = name.split("");
         //var delay = new Random().nextInt(1000);
+
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(1000));
     }

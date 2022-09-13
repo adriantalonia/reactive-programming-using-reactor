@@ -2,6 +2,7 @@ package com.reactive.service;
 
 import com.reactive.domain.Movie;
 import com.reactive.domain.Review;
+import com.reactive.exception.MovieException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,7 +28,10 @@ public class MovieReactiveService {
                     .collectList();
             return reviewsMono
                     .map(reviewsList -> new Movie(movieInfo, reviewsList)).log();
-        });
+        }).onErrorMap((ex) -> {
+            log.error("Exception is : ", ex);
+            throw new MovieException(ex.getMessage());
+        }).log();
     }
 
     public Mono<Movie> getMovieById(long movieId) {

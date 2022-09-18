@@ -3,6 +3,11 @@ package com.reactive.service;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
+import java.util.List;
+
+import static reactor.core.publisher.Mono.delay;
+
 public class FluxAndMonoSchedulersService {
     static List<String> namesList = List.of("alex", "ben", "chloe");
     static List<String> namesList1 = List.of("adam", "jill", "jack");
@@ -27,7 +32,7 @@ public class FluxAndMonoSchedulersService {
     }
 
     private String upperCase(String name) {
-        delay(1000);
+        delay(Duration.ofDays(1000));
         return name.toUpperCase();
     }
 }

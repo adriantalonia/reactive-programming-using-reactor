@@ -40,6 +40,7 @@ public class FluxAndMonoSchedulersService {
                     log.info("Value of s is {}", s);
                     return s;
                 })
+                //.subscribeOn(Schedulers.parallel())
                 .subscribeOn(Schedulers.boundedElastic())
                 .log();
 
@@ -48,6 +49,7 @@ public class FluxAndMonoSchedulersService {
                     log.info("Value of s is {}", s);
                     return s;
                 })
+                //.subscribeOn(Schedulers.parallel())
                 .subscribeOn(Schedulers.boundedElastic())
                 .map((s) -> {
                     log.info("Value of s after boundedElastic is {}", s);

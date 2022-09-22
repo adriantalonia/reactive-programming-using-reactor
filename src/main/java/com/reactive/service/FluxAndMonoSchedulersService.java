@@ -2,6 +2,8 @@ package com.reactive.service;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -58,6 +60,54 @@ public class FluxAndMonoSchedulersService {
                 .log();
 
         return namesFlux.mergeWith(namesFlux1);
+    }
+
+    public ParallelFlux<String> exploreParallel() {
+
+        var noOfCores = Runtime.getRuntime().availableProcessors();
+        log.info("cores: {}", noOfCores);
+
+        return Flux.fromIterable(namesList)
+                //.publishOn(Schedulers.parallel())
+                .parallel()
+                .runOn(Schedulers.parallel())
+                .map(this::upperCase)
+                .log();
+    }
+
+    public Flux<String> exploreParallelUsingFlatMap() {
+
+        return Flux.fromIterable(namesList)
+                .flatMap(name -> Mono.just(name)
+                        .map(this::upperCase)
+                        .subscribeOn(Schedulers.parallel()))
+                .log();
+    }
+
+    public Flux<String> exploreParallelUsingFlatMap1() {
+
+        var namesFLux = Flux.fromIterable(namesList)
+                .flatMap(name -> Mono.just(name)
+                        .map(this::upperCase)
+                        .subscribeOn(Schedulers.parallel()))
+                .log();
+
+        var namesFLux1 = Flux.fromIterable(namesList1)
+                .flatMap(name -> Mono.just(name)
+                        .map(this::upperCase)
+                        .subscribeOn(Schedulers.parallel()))
+                .log();
+
+        return namesFLux.mergeWith(namesFLux1);
+    }
+
+    public Flux<String> exploreParallelUsingFlatMapSequential() {
+
+        return Flux.fromIterable(namesList)
+                .flatMapSequential(name -> Mono.just(name)
+                        .map(this::upperCase)
+                        .subscribeOn(Schedulers.parallel()))
+                .log();
     }
 
     private Flux<String> flux1(List<String> namesList) {

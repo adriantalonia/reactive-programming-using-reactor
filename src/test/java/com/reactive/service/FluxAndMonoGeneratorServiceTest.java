@@ -2,8 +2,10 @@ package com.reactive.service;
 
 import com.reactive.exception.ReactorException;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Hooks;
 import reactor.test.StepVerifier;
 import reactor.test.scheduler.VirtualTimeScheduler;
+import reactor.tools.agent.ReactorDebugAgent;
 
 import java.time.Duration;
 import java.util.List;
@@ -434,9 +436,42 @@ class FluxAndMonoGeneratorServiceTest {
     @Test
     void exploreOnErrorMap() {
         //given
-        var e = new IllegalStateException("Not a valid state");
+        var e = new RuntimeException("Not a valid state");
         //when
-        var value = fluxAndMonoGeneratorService.exploreOnErrorMap().log();
+        var value = fluxAndMonoGeneratorService.exploreOnErrorMap(e).log();
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A")
+                .expectError(ReactorException.class)
+                .verify();
+
+    }
+
+    @Test
+    void exploreOnErrorMapOnOperatorDebug() {
+        //given
+        //Hooks.onOperatorDebug(); // it is not recommended
+        var e = new RuntimeException("Not a valid state");
+        //when
+        var value = fluxAndMonoGeneratorService.exploreOnErrorMap(e).log();
+
+        //then
+        StepVerifier.create(value)
+                .expectNext("A")
+                .expectError(ReactorException.class)
+                .verify();
+
+    }
+
+    @Test
+    void exploreOnErrorMapReactorDebugAGent() {
+        //given
+        ReactorDebugAgent.init();
+        ReactorDebugAgent.processExistingClasses();
+        var e = new RuntimeException("Not a valid state");
+        //when
+        var value = fluxAndMonoGeneratorService.exploreOnErrorMap(e).log();
 
         //then
         StepVerifier.create(value)

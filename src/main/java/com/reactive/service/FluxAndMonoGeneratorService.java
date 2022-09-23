@@ -279,18 +279,21 @@ public class FluxAndMonoGeneratorService {
                 });
     }
 
-    public Flux<String> exploreOnErrorMap() {
-        return Flux.just("A", "B", "C")
+    public Flux<String> exploreOnErrorMap(Exception e) {
+        return /*Flux.just("A", "B", "C")
                 .map(name -> {
                     if (name.equals("B"))
                         throw new IllegalStateException("Exception occurred");
                     return name;
                 })
-                .concatWith(Flux.just("D"))
-                .onErrorMap((ex) -> {
-                    log.error("Exception is: ", ex);
-                    return new ReactorException(ex, ex.getMessage());
-                });
+                .concatWith(Flux.just("D"))*/
+                Flux.just("A")
+                        .concatWith(Flux.error(e))
+                        .checkpoint("errorSpot")
+                        .onErrorMap((ex) -> {
+                            log.error("Exception is: ", ex);
+                            return new ReactorException(ex, ex.getMessage());
+                        });
     }
 
     public Flux<String> exploreDoOnError() {
@@ -387,7 +390,7 @@ public class FluxAndMonoGeneratorService {
         return Flux.fromIterable(List.of("alex", "ben", "chloe"))
                 .handle((name, sink) -> {
                     if (name.length() > 3) {
-                       sink.next(name.toUpperCase());
+                        sink.next(name.toUpperCase());
                     }
                 });
     }

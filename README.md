@@ -7,7 +7,7 @@
 
 ## Technology Stack
 - Java 11
-- Greadle
+- Gradle
 - Junit5
 - Mockito
 

@@ -512,5 +512,41 @@ class FluxAndMonoGeneratorServiceTest {
                 .expectNextCount(9)
                 .verifyComplete();
     }
+
+    @Test
+    void exploreGenerate() {
+        var flux = fluxAndMonoGeneratorService.exploreGenerate().log();
+
+        StepVerifier.create(flux)
+                .expectNextCount(10)
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreCreate() {
+        var flux = fluxAndMonoGeneratorService.exploreCreate().log();
+
+        StepVerifier.create(flux)
+                .expectNextCount(6)
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreCreateMono() {
+        var mono = fluxAndMonoGeneratorService.exploreCreateMono().log();
+
+        StepVerifier.create(mono)
+                .expectNext("adrian")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreHandle() {
+        var flux = fluxAndMonoGeneratorService.exploreHandle().log();
+
+        StepVerifier.create(flux)
+                .expectNextCount(2)
+                .verifyComplete();
+    }
 }
 

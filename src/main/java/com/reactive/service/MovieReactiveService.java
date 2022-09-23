@@ -43,6 +43,43 @@ public class MovieReactiveService {
         }).log();
     }
 
+    public Flux<Movie> getAllMovies_RestClient() {
+
+        var movieInfoFlux = movieInfoService.retrieveAllMovieInfo_RestClient();
+
+        var movies = movieInfoFlux
+                //.flatMap((movieInfo -> {
+                .flatMapSequential((movieInfo -> {
+                    Mono<List<Review>> reviewsMono =
+                            reviewService.retrieveReviewsFlux_RestClient(movieInfo.getMovieInfoId())
+                                    .collectList();
+                    return reviewsMono
+                            .map(movieList -> new Movie(movieInfo, movieList));
+                }))
+                .onErrorMap((ex) -> {
+                    System.out.println("Exception is " + ex);
+                    ;
+                    log.error("Exception is : ", ex);
+                    throw new MovieException(ex.getMessage());
+                });
+
+        return movies;
+    }
+
+    public Mono<Movie> getMovieById_RestClient(Long movieId) {
+
+        var movieInfoMono = movieInfoService.retrieveMovieInfoById_RestClient(movieId);
+        var reviewList = reviewService.retrieveReviewsFlux_RestClient(movieId)
+                .collectList();
+
+        return movieInfoMono.zipWith(reviewList, (movieInfo, reviews) -> new Movie(movieInfo, reviews))
+                .onErrorMap((ex) -> {
+                    System.out.println("Exception is " + ex);
+                    log.error("Exception is : ", ex);
+                    throw new MovieException(ex.getMessage());
+                });
+    }
+
     public Flux<Movie> getAllMoviesRetry() {
         var moviesInfoFLux = movieInfoService.retrieveMoviesFlux();
         return moviesInfoFLux.flatMap(movieInfo -> {
@@ -139,7 +176,7 @@ public class MovieReactiveService {
                 .subscribeOn(Schedulers.boundedElastic());
 
         return movieInfoMono.zipWith(reviewList, (movieInfo, reviews) -> new Movie(movieInfo, reviews))
-                .zipWith(revenueMono,(movie,revenue) -> {
+                .zipWith(revenueMono, (movie, revenue) -> {
                     movie.setRevenue(revenue);
                     return movie;
                 });
